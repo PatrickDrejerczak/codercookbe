@@ -6,9 +6,12 @@ unitController.createUnit = async (req, res, next) => {
   try {
     let { name } = req.body;
 
-    let units = await Unit.create({
+    let units = await Unit.findOne({ name });
+    if (!units) return;
+    units = await Unit.create({
       name,
     });
+
     utilsHelper.sendResponse(
       res,
       200,

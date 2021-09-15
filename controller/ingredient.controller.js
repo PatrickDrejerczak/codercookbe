@@ -6,15 +6,18 @@ ingredientController.createIngredient = async (req, res, next) => {
   try {
     let { name, type } = req.body;
 
-    let units = await Ingredient.create({
+    let ingredients = await Ingredient.findOne({ name });
+    if (!ingredients) return;
+    ingredients = await Ingredient.create({
       name,
       type,
     });
+
     utilsHelper.sendResponse(
       res,
       200,
       true,
-      { units },
+      { ingredients },
       null,
       "Created new unit successfully."
     );

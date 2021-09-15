@@ -6,7 +6,7 @@ userController.createUser = async (req, res, next) => {
   try {
     let { name, email, password } = req.body;
 
-    let units = await User.create({
+    let user = await User.create({
       email,
       password,
       name,
@@ -15,7 +15,7 @@ userController.createUser = async (req, res, next) => {
       res,
       200,
       true,
-      { units },
+      { user },
       null,
       "Created new user successfully."
     );
