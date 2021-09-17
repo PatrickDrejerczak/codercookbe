@@ -25,9 +25,14 @@ categoryController.createCategory = async (req, res, next) => {
   try {
     let { name } = req.body;
 
-    let categories = await Category.create({
-      name,
-    });
+    let category = await Category.findOne({ name });
+    if (!category) {
+      categories = await Category.create({
+        name,
+      });
+    } else {
+      return next(new Error("401 - Category already exist."));
+    }
     utilsHelper.sendResponse(
       res,
       200,

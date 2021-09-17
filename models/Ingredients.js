@@ -1,18 +1,17 @@
 const mongoose = require("mongoose");
-(slug = require("mongoose-slug-generator")), mongoose.plugin(slug);
 
 const Schema = mongoose.Schema;
 const ingredientsSchema = Schema({
   name: String,
-  slug: { type: String, slug: "name" },
   type: {
     type: String,
     enum: {
       values: ["main", "spice"],
     },
   },
+  unit: String,
 });
 
-const Ingredients = mongoose.model("ingredients", ingredientsSchema);
+const Ingredients = mongoose.model("Ingredients", ingredientsSchema);
 
 module.exports = Ingredients;

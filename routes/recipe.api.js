@@ -19,6 +19,6 @@ router.put("/:id", recipeController.updateRecipe);
 
 // What´s in your fridge? function
 // => Match ingredient
-router.get("/match", recipeController.match);
+router.get("/match/:id", recipeController.match);
 
 module.exports = router;

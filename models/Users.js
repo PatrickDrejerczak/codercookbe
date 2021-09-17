@@ -6,9 +6,8 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const userSchema = Schema(
   {
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: false },
-    name: { type: String, required: false },
-    recipes: { type: Schema.Types.ObjectId, ref: "recipes" },
+    password: { type: String, required: true },
+    name: String,
     isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
