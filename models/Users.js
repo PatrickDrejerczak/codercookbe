@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const jwt = require("jsonwebtoken");
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 const userSchema = Schema(
   {
@@ -14,9 +13,13 @@ const userSchema = Schema(
 );
 
 userSchema.methods.generateToken = async function () {
-  const accessToken = await jwt.sign({ _id: this._id }, JWT_SECRET_KEY, {
-    expiresIn: "7d",
-  });
+  const accessToken = await jwt.sign(
+    { _id: this._id },
+    process.env.JWT_SECRET_KEY,
+    {
+      expiresIn: "7d",
+    }
+  );
   return accessToken;
 };
 

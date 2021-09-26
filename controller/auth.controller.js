@@ -11,18 +11,18 @@ authController.register = async (req, res, next) => {
     if (user) return next(new Error("401 - Email already exits"));
     const salt = await bcrypt.genSalt(10);
     password = await bcrypt.hash(password, salt);
-
+    console.log(password);
     user = await Users.create({
       name,
       email,
       password,
     });
-    const accessToken = await user.generateToken();
+
     utilsHelper.sendResponse(
       res,
       200,
       true,
-      { user, accessToken },
+      user,
       null,
       "Register successfully"
     );

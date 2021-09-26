@@ -12,6 +12,8 @@ const recipesSchema = Schema({
       quantity: { type: Number },
     },
   ],
+  urlToImage: { type: String },
+  isFeatured: { type: Boolean },
 });
 
 const Recipes = mongoose.model("Recipes", recipesSchema);

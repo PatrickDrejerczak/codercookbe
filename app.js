@@ -5,6 +5,7 @@ var logger = require("morgan");
 require("./middlewares/passport");
 const expressSession = require("express-session");
 const utilHelpers = require("./helpers/utils.helper");
+var cors = require("cors");
 
 var indexRouter = require("./routes/index");
 
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 require("dotenv").config();
+app.use(cors());
 
 const mongoose = require("mongoose");
 const MONGODB_URI = process.env.MONGODB_URI;

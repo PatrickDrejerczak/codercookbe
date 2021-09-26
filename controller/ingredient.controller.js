@@ -32,7 +32,6 @@ ingredientController.createIngredient = async (req, res, next) => {
 ingredientController.getAllIngredients = async (req, res, next) => {
   try {
     let ingredients = await Ingredient.find({});
-
     const response = utilsHelper.sendResponse(
       res,
       200,

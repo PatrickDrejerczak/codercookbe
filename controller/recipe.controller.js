@@ -1,4 +1,5 @@
 const utilsHelper = require("../helpers/utils.helper");
+const mongoose = require("mongoose");
 const Recipe = require("../models/Recipes");
 const recipeController = {};
 
@@ -19,28 +20,7 @@ recipeController.getAllRecipes = async (req, res, next) => {
 };
 
 recipeController.match = async (req, res, next) => {
-  //the user will send an array of ingredient ID <- from a dropdown list
-  //create condition
-  // requirement2 === ingredientInTheRecipe)
-
-  // ["12312312","1231231","12837129ujasd"]
-
-  // Recipe= {
-  // ingredients:[
-  //   {ingredient: ObjectId,
-  //   ...},
-  //   {ingredient: ObjectId,
-  //     ...},
-  //     {ingredient: ObjectId,
-  //       ...}
-  // ]
-  // }
-
   console.log("result", req.params);
-
-  // v1 match EXACTLY ALL condition in req.params
-
-  //find all the recipe that have same with the array
 
   const result = await Recipe.find({
     ingredients: { $elemMatch: { ingredient: "614357dbeb773818af470c43" } },
@@ -54,21 +34,23 @@ recipeController.match = async (req, res, next) => {
     true,
     result,
     null,
-    "Get single recipe successfully."
+    "Get match successfully."
   );
 };
 
 recipeController.getSingleRecipe = async (req, res, next) => {
   try {
-    const { id } = req.body;
-    let recipes = await Recipe.findOne({ id });
-    if (!recipes) return next(new Error("401 - Recipe not found."));
+    const { id } = req.params.id;
+    const recipe = await Recipe.findOne({
+      recipe: mongoose.Types.ObjectId(id),
+    });
+    if (!recipe) return next(new Error("401 - Recipe not found."));
 
     utilsHelper.sendResponse(
       res,
       200,
       true,
-      { recipes },
+      { recipe },
       null,
       "Get single recipe successfully."
     );
@@ -116,10 +98,17 @@ recipeController.createRecipe = async (req, res, next) => {
 recipeController.updateRecipe = async (req, res, next) => {
   try {
     let recipeID = req.params.id;
-    let { isSending } = req.body;
-    let recipe = await Recipe.findByIdAndUpdate(recipeID, {
-      isSending,
-    });
+    let { isSending, name, description } = req.body;
+    let recipe = await Recipe.findByIdAndUpdate(
+      recipeID,
+      {
+        $push: { ingredients: { $each: isSending } },
+        name: name,
+        description: description,
+      },
+      { new: true }
+    );
+
     utilsHelper.sendResponse(
       res,
       200,
