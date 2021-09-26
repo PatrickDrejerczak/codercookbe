@@ -1,4 +1,5 @@
 const express = require("express");
+const categoryController = require("../controller/category.controller");
 const router = express.Router();
 const recipeController = require("../controller/recipe.controller");
 
@@ -19,6 +20,9 @@ router.put("/:id", recipeController.updateRecipe);
 
 // What´s in your fridge? function
 // => Match ingredient
-router.get("/match", recipeController.match);
+router.get("/match/:id", recipeController.match);
+
+// Get recipes by category
+router.get("/category/:name", categoryController.getRecipeByCategory);
 
 module.exports = router;

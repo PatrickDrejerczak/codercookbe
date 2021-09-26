@@ -9,7 +9,7 @@ const passport = require("passport");
  * @description User can register with email and password
  * @access Public
  */
-router.post("/register", userController.createUser);
+router.post("/register", authController.register);
 
 /**
  * @route POST auth/login

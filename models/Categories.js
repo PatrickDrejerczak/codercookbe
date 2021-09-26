@@ -8,7 +8,7 @@ const categoriesSchema = Schema({
       values: [
         "chinese",
         "japanese",
-        "italien",
+        "italian",
         "french",
         "western",
         "german",
@@ -18,11 +18,12 @@ const categoriesSchema = Schema({
         "mexican",
         "pastries",
         "healthy",
+        "indian",
       ],
     },
   },
 });
 
-const Categories = mongoose.model("categories", categoriesSchema);
+const Categories = mongoose.model("Categories", categoriesSchema);
 
 module.exports = Categories;

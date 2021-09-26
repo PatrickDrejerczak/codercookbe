@@ -10,9 +10,6 @@ router.use("/category", categoryApi);
 const authApi = require("./auth.api");
 router.use("/auth", authApi);
 
-const unitApi = require("./unit.api");
-router.use("/unit", unitApi);
-
 const ingredientApi = require("./ingredient.api");
 router.use("/ingredient", ingredientApi);
 

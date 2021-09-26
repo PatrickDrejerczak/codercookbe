@@ -1,5 +1,7 @@
+const mongoose = require("mongoose");
 const utilsHelper = require("../helpers/utils.helper");
 const Category = require("../models/Categories");
+const Recipe = require("../models/Recipes");
 const categoryController = {};
 
 categoryController.getSingleCategory = async (req, res, next) => {
@@ -21,13 +23,41 @@ categoryController.getSingleCategory = async (req, res, next) => {
   }
 };
 
+categoryController.getRecipeByCategory = async (req, res, next) => {
+  try {
+    const name = req.params.name.toLowerCase();
+    const category = await Category.findOne({ name });
+    let recipes = await Recipe.find({
+      categoryId: category._id,
+    });
+
+    if (!recipes) return next(new Error("401 - Recipes not found."));
+
+    utilsHelper.sendResponse(
+      res,
+      200,
+      true,
+      { recipes },
+      null,
+      "Get recipes by category successfully."
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
 categoryController.createCategory = async (req, res, next) => {
   try {
     let { name } = req.body;
 
-    let categories = await Category.create({
-      name,
-    });
+    let category = await Category.findOne({ name });
+    if (!category) {
+      categories = await Category.create({
+        name,
+      });
+    } else {
+      return next(new Error("401 - Category already exist."));
+    }
     utilsHelper.sendResponse(
       res,
       200,

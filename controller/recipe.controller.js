@@ -1,10 +1,11 @@
 const utilsHelper = require("../helpers/utils.helper");
+const mongoose = require("mongoose");
 const Recipe = require("../models/Recipes");
 const recipeController = {};
 
 recipeController.getAllRecipes = async (req, res, next) => {
   try {
-    let recipes = Recipe;
+    let recipes = await Recipe.find({});
     const response = utilsHelper.sendResponse(
       res,
       200,
@@ -19,70 +20,37 @@ recipeController.getAllRecipes = async (req, res, next) => {
 };
 
 recipeController.match = async (req, res, next) => {
-  //front end will send an array of ingredients
-  const { body } = req;
-  if (!body || body.length === 0) {
-    return next(new Error("401 - Body missing"));
-  }
+  console.log("result", req.params);
 
-  //   //find only EXACT MATCH of the recipe of the ingredient
-  //   // target property => receipe.ingredient.name  // receipe.ingredient= [{ingredients:_id},{ingredients:_id},{ingredients:_id}]
-
-  const conditions = [];
-  body.map((keyword) => {
-    conditions.push({
-      ingredients: { "ingredients.name": keyword },
-    });
-  });
-  //   // v.1
-  //   // ["rice","chicken"]
-  //   // to [{indredient:{name:rice}},{indredient:{name:chicken}}]
-  //   // so we could X.find({$and:[{indredient:{name:rice}},{indredient:{name:chicken}}]})
-  //   // v.2
-  //   // match only main
-  //   // v.3 findOne({indredient:{name:rice}})
-  //   // match with less than unit amount
-
-  //   // rice, chicken, tomato -> 1. fried rice with chicken and tomato, 2. rice with chicken, 3. tomato rice, 4. fried chicken , 5. fried rice
-  //   // exact match  $and
-  //   // match some $or
-
-  console.log("my conditions test", conditions);
-
-  //   /// select all the keyword in the body
-  const matchExact = await Recipe.find({
-    $and: conditions,
-  });
-  const matchSome = await Recipe.find({
-    $or: conditions,
+  const result = await Recipe.find({
+    ingredients: { $elemMatch: { ingredient: "614357dbeb773818af470c43" } },
   });
 
-  const recipes = {};
-  recipes.matchExact = matchExact;
-
-  recipes.matchSome = matchSome;
+  console.log(result);
 
   utilsHelper.sendResponse(
     res,
     200,
     true,
-    recipes,
+    result,
     null,
-    "Get single recipe successfully."
+    "Get match successfully."
   );
 };
 
 recipeController.getSingleRecipe = async (req, res, next) => {
   try {
-    const { id } = req.body;
-    let recipes = await Recipe.findOne({ id });
-    if (!recipes) return next(new Error("401 - Recipe not found."));
+    const { id } = req.params.id;
+    const recipe = await Recipe.findOne({
+      recipe: mongoose.Types.ObjectId(id),
+    });
+    if (!recipe) return next(new Error("401 - Recipe not found."));
 
     utilsHelper.sendResponse(
       res,
       200,
       true,
-      { recipes },
+      { recipe },
       null,
       "Get single recipe successfully."
     );
@@ -92,18 +60,28 @@ recipeController.getSingleRecipe = async (req, res, next) => {
 };
 
 recipeController.createRecipe = async (req, res, next) => {
-  try {
-    let { categoryId, ingredient, units, quantity, name, userId } = req.body;
+  // to create recipe
+  let { name, categoryId, ingredients, userId, description } = req.body;
 
+  if (
+    !name ||
+    !userId ||
+    !categoryId ||
+    !(ingredients.length > 0) ||
+    !description
+  ) {
+    return next(new Error("401 - Input missing."));
+  }
+
+  try {
     let recipes = await Recipe.create({
       name,
       userId,
       categoryId,
-      ingredient,
-      units,
-      quantity,
+      ingredients,
+      description,
     });
-    console.log(ingredient);
+    console.log(ingredients);
     utilsHelper.sendResponse(
       res,
       200,
@@ -120,10 +98,17 @@ recipeController.createRecipe = async (req, res, next) => {
 recipeController.updateRecipe = async (req, res, next) => {
   try {
     let recipeID = req.params.id;
-    let { isSending } = req.body;
-    let recipe = await Recipe.findByIdAndUpdate(recipeID, {
-      isSending,
-    });
+    let { isSending, name, description } = req.body;
+    let recipe = await Recipe.findByIdAndUpdate(
+      recipeID,
+      {
+        $push: { ingredients: { $each: isSending } },
+        name: name,
+        description: description,
+      },
+      { new: true }
+    );
+
     utilsHelper.sendResponse(
       res,
       200,

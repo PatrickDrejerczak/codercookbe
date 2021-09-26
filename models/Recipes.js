@@ -3,17 +3,19 @@ const Schema = mongoose.Schema;
 
 const recipesSchema = Schema({
   name: { type: String },
-  userId: { type: Schema.Types.ObjectId, ref: "users" },
-  categoryId: { type: Schema.Types.ObjectId, ref: "categories" },
-  ingredient: [
+  userId: { type: Schema.Types.ObjectId, ref: "Users" },
+  categoryId: { type: Schema.Types.ObjectId, ref: "Categories" },
+  description: { type: String },
+  ingredients: [
     {
-      ingredients: { type: Schema.Types.ObjectId, ref: "ingredients" },
-      unit: { type: Schema.Types.ObjectId, ref: "units" },
+      ingredient: { type: Schema.Types.ObjectId, ref: "Ingredients" },
       quantity: { type: Number },
     },
   ],
+  urlToImage: { type: String },
+  isFeatured: { type: Boolean },
 });
 
-const Recipes = mongoose.model("recipes", recipesSchema);
+const Recipes = mongoose.model("Recipes", recipesSchema);
 
 module.exports = Recipes;
