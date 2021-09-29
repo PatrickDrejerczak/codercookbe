@@ -6,7 +6,7 @@ const authController = {};
 authController.register = async (req, res, next) => {
   try {
     let { name, email, password } = req.body;
-    console.log(name, email, password);
+
     let user = await Users.findOne({ email });
     if (user) return next(new Error("401 - Email already exits"));
     const salt = await bcrypt.genSalt(10);

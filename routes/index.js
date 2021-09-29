@@ -13,4 +13,7 @@ router.use("/auth", authApi);
 const ingredientApi = require("./ingredient.api");
 router.use("/ingredient", ingredientApi);
 
+const userApi = require("./user.api");
+router.use("/user", userApi);
+
 module.exports = router;
