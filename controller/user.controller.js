@@ -9,7 +9,7 @@ const userController = {};
 
 userController.getCurrentUser = catchAsync(async (req, res, next) => {
   const userId = req.userId;
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).populate("favorites");
   console.log(user);
   console.log(userId);
   // if (!user)

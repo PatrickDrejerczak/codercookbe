@@ -1,4 +1,5 @@
 const express = require("express");
+const recipeController = require("../controller/recipe.controller");
 const router = express.Router();
 const userController = require("../controller/user.controller");
 const authMiddleware = require("../middlewares/authentication");
@@ -17,5 +18,12 @@ router.put("/:userId", userController.updateProfile);
 
 // DELETE single user
 router.delete("/:userId", userController.deleteUser);
+
+// Add favorite to favorites
+router.put(
+  "/favorite/:recipeId",
+  authMiddleware.loginRequired,
+  recipeController.addFavorite
+);
 
 module.exports = router;
