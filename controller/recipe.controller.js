@@ -55,11 +55,15 @@ recipeController.match = async (req, res, next) => {
 
 recipeController.getSingleRecipe = async (req, res, next) => {
   try {
+    let { limit } = req.query;
+    limit = parseInt(limit) || 4;
     const id = req.params.id;
-    const recipe = await Recipe.findById(id).populate({
-      path: "ingredients",
-      populate: { path: "ingredient" },
-    });
+    const recipe = await Recipe.findById(id)
+      .populate({
+        path: "ingredients",
+        populate: { path: "ingredient" },
+      })
+      .limit(limit);
     if (!recipe) return next(new Error("401 - Recipe not found."));
 
     utilsHelper.sendResponse(
@@ -88,6 +92,16 @@ recipeController.createRecipe = async (req, res, next) => {
     cookingInstruction,
   } = req.body;
   const userId = req.userId;
+
+  // if (
+  //   !name ||
+  //   !categoryId ||
+  //   ingredients.length ||
+  //   !description ||
+  //   !urlToImage ||
+  //   !cookingInstruction
+  // )
+  //   return next(new Error("401 - Missing input."));
 
   try {
     let recipes = await Recipe.create({
@@ -145,8 +159,6 @@ recipeController.getRecipeByUserId = async (req, res, next) => {
   try {
     const userId = req.params.userId;
     const recipes = await Recipe.find({ userId: userId });
-    console.log(recipes);
-    console.log(userId);
 
     if (!recipes) return next(new Error("401 - Recipes not found."));
 
@@ -156,7 +168,7 @@ recipeController.getRecipeByUserId = async (req, res, next) => {
       true,
       { recipes },
       null,
-      "Get recipes by category successfully."
+      "Get recipes by User successfully."
     );
   } catch (error) {
     next(error);
@@ -201,7 +213,6 @@ recipeController.deleteRecipe = catchAsync(async (req, res, next) => {
 recipeController.addFavorite = catchAsync(async (req, res, next) => {
   const recipeId = req.params.recipeId;
   const userId = req.userId;
-  console.log("userid", userId);
   const user = await User.findOneAndUpdate(
     { _id: userId },
     {
@@ -220,6 +231,7 @@ recipeController.addFavorite = catchAsync(async (req, res, next) => {
         "Add Favorite Error"
       )
     );
+
   return sendResponse(res, 200, true, user, null, "Update successful");
 });
 

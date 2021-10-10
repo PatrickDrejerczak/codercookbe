@@ -13,6 +13,9 @@ router.put("/me", authMiddleware.loginRequired, userController.updateProfile);
 // Get all user
 router.get("/", userController.getAllUser);
 
+// Get user by ID
+router.get("/:userId", userController.getUserById);
+
 // PUT single user
 router.put("/:userId", userController.updateProfile);
 

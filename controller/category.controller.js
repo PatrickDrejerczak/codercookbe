@@ -115,7 +115,6 @@ categoryController.deleteCategory = catchAsync(async (req, res, next) => {
 categoryController.updateCategory = catchAsync(async (req, res, next) => {
   const categoryId = req.params.categoryId;
   const content = req.body;
-  console.log(content);
 
   const category = await Category.findOneAndUpdate(
     { _id: categoryId },
