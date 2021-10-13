@@ -63,6 +63,7 @@ recipeController.getSingleRecipe = async (req, res, next) => {
         path: "ingredients",
         populate: { path: "ingredient" },
       })
+      .populate("userId")
       .limit(limit);
     if (!recipe) return next(new Error("401 - Recipe not found."));
 
@@ -93,15 +94,19 @@ recipeController.createRecipe = async (req, res, next) => {
   } = req.body;
   const userId = req.userId;
 
-  // if (
-  //   !name ||
-  //   !categoryId ||
-  //   ingredients.length ||
-  //   !description ||
-  //   !urlToImage ||
-  //   !cookingInstruction
-  // )
-  //   return next(new Error("401 - Missing input."));
+  console.log(req.body);
+  console.log(name);
+  console.log(ingredients.length);
+
+  if (
+    !name ||
+    !categoryId ||
+    !ingredients.length ||
+    !description ||
+    !urlToImage ||
+    !cookingInstruction
+  )
+    return next(new Error("401 - Missing input."));
 
   try {
     let recipes = await Recipe.create({
@@ -216,7 +221,7 @@ recipeController.addFavorite = catchAsync(async (req, res, next) => {
   const user = await User.findOneAndUpdate(
     { _id: userId },
     {
-      $push: { favorites: recipeId },
+      $addToSet: { favorites: recipeId },
     },
     {
       new: true,
