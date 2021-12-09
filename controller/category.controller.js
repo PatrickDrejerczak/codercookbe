@@ -47,14 +47,16 @@ categoryController.getAllCategories = async (req, res, next) => {
 
 categoryController.getRecipeByCategory = async (req, res, next) => {
   try {
-    let { limit } = req.query;
-    limit = parseInt(limit) || 4;
+    let { page, limit } = req.query;
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 6;
+
     const name = req.params.name.toLowerCase();
     const category = await Category.findOne({ name });
 
     let recipes = await Recipe.find({
       categoryId: category._id,
-    }).limit(limit);
+    });
 
     if (!recipes) return next(new Error("401 - Recipes not found."));
 

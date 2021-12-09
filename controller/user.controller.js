@@ -24,26 +24,23 @@ userController.getCurrentUser = catchAsync(async (req, res, next) => {
 
 userController.updateProfile = catchAsync(async (req, res, next) => {
   const userId = req.params.userId;
-  const allows = ["name", "password", "avatarUrl"];
-  const user = await User.findById(userId);
-  if (!user) {
-    return next(new AppError(404, "Account not found", "Update Profile Error"));
-  }
+  const { name, email } = req.body;
 
-  allows.forEach((field) => {
-    if (req.body[field] !== undefined) {
-      user[field] = req.body[field];
+  const user = await User.findOneAndUpdate(
+    { _id: userId, name, email },
+    {
+      new: true,
     }
-  });
-  await user.save();
-  return sendResponse(
-    res,
-    200,
-    true,
-    user,
-    null,
-    "Update Profile successfully"
   );
+  if (!user)
+    return next(
+      new AppError(
+        400,
+        "User not found or User not authorized",
+        "Update User Error"
+      )
+    );
+  return sendResponse(res, 200, true, user, null, "Update successful");
 });
 
 userController.deleteUser = catchAsync(async (req, res, next) => {

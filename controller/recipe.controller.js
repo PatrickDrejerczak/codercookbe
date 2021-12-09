@@ -94,10 +94,6 @@ recipeController.createRecipe = async (req, res, next) => {
   } = req.body;
   const userId = req.userId;
 
-  console.log(req.body);
-  console.log(name);
-  console.log(ingredients.length);
-
   if (
     !name ||
     !categoryId ||
