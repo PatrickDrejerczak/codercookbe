@@ -11,7 +11,6 @@ authController.register = async (req, res, next) => {
     if (user) return next(new Error("401 - Email already exits"));
     const salt = await bcrypt.genSalt(10);
     password = await bcrypt.hash(password, salt);
-    console.log(password);
     user = await Users.create({
       name,
       email,
@@ -56,9 +55,7 @@ authController.loginWithEmail = async (req, res, next) => {
 
 authController.loginWithFacebook = async (req, res, next) => {
   try {
-    console.log("before");
     const { email, name } = req.user;
-    console.log(req.user);
     let user = await Users.findOne({ email });
     if (!user) return;
     user = await Users.create({
@@ -83,7 +80,6 @@ authController.loginWithFacebook = async (req, res, next) => {
 authController.loginWithGoogle = async (req, res, next) => {
   try {
     const email = req.user.emails[0].value;
-    console.log(req.user.emails[0].value);
     let user = await Users.findOne({ email });
     if (!user)
       user = await Users.create({

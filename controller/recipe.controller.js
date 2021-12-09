@@ -7,6 +7,7 @@ const utilsHelper = require("../helpers/utils.helper");
 const mongoose = require("mongoose");
 const Recipe = require("../models/Recipes");
 const recipeController = {};
+const User = require("../models/Users");
 
 recipeController.getAllRecipes = async (req, res, next) => {
   try {
@@ -25,25 +26,19 @@ recipeController.getAllRecipes = async (req, res, next) => {
 };
 
 recipeController.match = async (req, res, next) => {
+  //match at least 1 ingredient
   try {
     let inputArr = req.body.inputArr;
-    inputArr = inputArr.map((input) => mongoose.Types.ObjectId(input));
-    const recipes = await Recipe.find().lean();
-    const recipeArr = recipes.map((recipe) =>
-      recipe.ingredients.map((r) => r.ingredient)
-    );
-    const result = recipeArr.filter((recipe) => {
-      for (let i = 0; i < recipe.length; i++) {
-        inputArr.includes(recipe[i]);
-        console.log(recipe[i]);
-        return true;
-      }
-    });
-    // const result = await Recipe.find({
-    //   ingredients: { $elemMatch: { ingredient: "614357dbeb773818af470c43" } },
-    // });
 
-    console.log(result);
+    const queryFormat = inputArr.map((id) => {
+      return {
+        "ingredients.ingredient": id,
+      };
+    });
+
+    const result = await Recipe.find({
+      $or: queryFormat,
+    });
 
     utilsHelper.sendResponse(
       res,
@@ -60,11 +55,16 @@ recipeController.match = async (req, res, next) => {
 
 recipeController.getSingleRecipe = async (req, res, next) => {
   try {
+    let { limit } = req.query;
+    limit = parseInt(limit) || 4;
     const id = req.params.id;
-    const recipe = await Recipe.findById(id).populate({
-      path: "ingredients",
-      populate: { path: "ingredient" },
-    });
+    const recipe = await Recipe.findById(id)
+      .populate({
+        path: "ingredients",
+        populate: { path: "ingredient" },
+      })
+      .populate("userId")
+      .limit(limit);
     if (!recipe) return next(new Error("401 - Recipe not found."));
 
     utilsHelper.sendResponse(
@@ -93,6 +93,16 @@ recipeController.createRecipe = async (req, res, next) => {
     cookingInstruction,
   } = req.body;
   const userId = req.userId;
+
+  if (
+    !name ||
+    !categoryId ||
+    !ingredients.length ||
+    !description ||
+    !urlToImage ||
+    !cookingInstruction
+  )
+    return next(new Error("401 - Missing input."));
 
   try {
     let recipes = await Recipe.create({
@@ -150,8 +160,6 @@ recipeController.getRecipeByUserId = async (req, res, next) => {
   try {
     const userId = req.params.userId;
     const recipes = await Recipe.find({ userId: userId });
-    console.log(recipes);
-    console.log(userId);
 
     if (!recipes) return next(new Error("401 - Recipes not found."));
 
@@ -161,7 +169,7 @@ recipeController.getRecipeByUserId = async (req, res, next) => {
       true,
       { recipes },
       null,
-      "Get recipes by category successfully."
+      "Get recipes by User successfully."
     );
   } catch (error) {
     next(error);
@@ -201,6 +209,42 @@ recipeController.deleteRecipe = catchAsync(async (req, res, next) => {
       )
     );
   return sendResponse(res, 200, true, null, null, "Delete successful");
+});
+
+recipeController.addFavorite = catchAsync(async (req, res, next) => {
+  const recipeId = req.params.recipeId;
+  const userId = req.userId;
+  const user = await User.findOneAndUpdate(
+    { _id: userId },
+    {
+      $addToSet: { favorites: recipeId },
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!user)
+    return next(
+      new AppError(
+        400,
+        "User not found or User not authorized",
+        "Add Favorite Error"
+      )
+    );
+
+  return sendResponse(res, 200, true, user, null, "Update successful");
+});
+
+recipeController.searchRecipe = catchAsync(async (req, res, next) => {
+  const search = req.query.search;
+  if (search === "") {
+    return sendResponse(res, 200, true, [], null, "Search successful");
+  }
+  const recipes = await Recipe.find({
+    name: { $regex: new RegExp(search, "i") },
+  });
+  return sendResponse(res, 200, true, recipes, null, "Search successful");
 });
 
 module.exports = recipeController;

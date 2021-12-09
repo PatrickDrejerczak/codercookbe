@@ -4,6 +4,9 @@ const router = express.Router();
 const recipeController = require("../controller/recipe.controller");
 const authMiddleware = require("../middlewares/authentication");
 
+// GET search results
+router.get("/search", recipeController.searchRecipe);
+
 // Get all recipes
 router.get("/", recipeController.getAllRecipes);
 
@@ -12,7 +15,7 @@ router.get("/", recipeController.getAllRecipes);
 
 // What´s in your fridge? function
 // => Match ingredient
-router.get("/match", recipeController.match);
+router.post("/match", recipeController.match);
 
 // Get specific recipe
 router.get("/:id", recipeController.getSingleRecipe);
