@@ -94,15 +94,7 @@ recipeController.createRecipe = async (req, res, next) => {
   } = req.body;
   const userId = req.userId;
 
-  if (
-    !name ||
-    !categoryId ||
-    !ingredients.length ||
-    !description ||
-    !urlToImage ||
-    !cookingInstruction
-  )
-    return next(new Error("401 - Missing input."));
+
 
   try {
     let recipes = await Recipe.create({
